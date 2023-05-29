@@ -87,8 +87,10 @@ public class MainActivity extends AppCompatActivity {
             startService(intent);
         }
 
-        MySP mySP = new MySP(this);
-        mySP.putString(SP_KEY_SERVICE, "ACTIVE");
+        //MySP mySP = new MySP(this);
+        //mySP.putString(SP_KEY_SERVICE, "ACTIVE");
+
+        MySPV3.getInstance().putString(SP_KEY_SERVICE, "ACTIVE");
 
     }
 
@@ -103,7 +105,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             startService(intent);
         }
-        MySP mySP = new MySP(this);
-        mySP.putString(SP_KEY_SERVICE, "OFF");
+        //MySP mySP = new MySP(this);
+        //mySP.putString(SP_KEY_SERVICE, "OFF");
+
+        MySPV3.getInstance().putString(SP_KEY_SERVICE, "OFF");
+
     }
 }

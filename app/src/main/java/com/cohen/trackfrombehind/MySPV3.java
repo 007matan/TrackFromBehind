@@ -3,16 +3,30 @@ package com.cohen.trackfrombehind;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class MySP {
+public class MySPV3 {
 
-    private static final String SERVICE_FILE = "SERVICE_FILE"; //why i need this? consider i got that in the MainActivity public static final String SP_KEY_SERVICE = "SP_KEY_SERVICE"; ?
-                                                                //That's the name of the file
-                                                                //the other is the name of specific key
+    private static final String DB_FILE = "DB_FILE";
+
+
+    private static MySPV3 mySPV3 = null;
     private SharedPreferences preferences;
 
-    public MySP(Context context) {
-        preferences = context.getSharedPreferences(SERVICE_FILE, Context.MODE_PRIVATE);
+    public static MySPV3 getInstance() {
+        return mySPV3;
     }
+
+    public static void init(Context context) {
+        if (mySPV3 == null) {
+            mySPV3 = new MySPV3(context);
+        }
+    }
+
+    private MySPV3(Context context) {
+
+        preferences = context.getSharedPreferences(DB_FILE, Context.MODE_PRIVATE);
+    }
+
+
 
     public void putInt(String key, int value) {
         SharedPreferences.Editor editor = preferences.edit();

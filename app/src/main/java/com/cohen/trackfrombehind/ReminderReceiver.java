@@ -15,7 +15,7 @@ import androidx.core.app.NotificationCompat;
 
 public class ReminderReceiver extends BroadcastReceiver {
 
-    private static final String NOTIFICATION_CHANNEL_ID = "com.guy.class23a_ands_4.Crashalert";
+    private static final String NOTIFICATION_CHANNEL_ID = "com.cohen.trackfrombehind.CrashAlert";
     private static final int NOTIFICATION_ID = 354;
 
     @Override
@@ -26,10 +26,12 @@ public class ReminderReceiver extends BroadcastReceiver {
 //            context.startActivity(new Intent(context, Activity_Panel.class));
 
             if (true) {
-                actionToService(context, LocationService.START_FOREGROUND_SERVICE);
+                //From android 13 cannot be activated
+                //actionToService(context, LocationService.START_FOREGROUND_SERVICE);
+                createNotification(context);
             }
 
-            createNotification(context);
+
         }
     }
 
@@ -42,9 +44,12 @@ public class ReminderReceiver extends BroadcastReceiver {
 
             // TODO: 23/11/2021 Ask if service should run right now
             MySP mySP = new MySP(context);
-            String service_status = mySP.getString(MainActivity.SP_KEY_SERVICE, "ACTIVE");
+            //String service_status = mySP.getString(MainActivity.SP_KEY_SERVICE, "ACTIVE");
+            String status = MySPV3.getInstance().getString(MainActivity.SP_KEY_SERVICE, "ACTIVE");
 
-            if (service_status == "OFF") {
+            if (status == "ACTIVE"/*!LocationService.isMyServiceRunning(context)*/) {
+                                            //ACTIVE - means that according to user the service should be running
+                                            //we get here when we check crushes every 15 minutes
                 // Should run now
                 return true;
             }

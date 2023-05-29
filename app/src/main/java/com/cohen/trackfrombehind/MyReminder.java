@@ -19,12 +19,12 @@ public class MyReminder {
         if (true) {
             AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Calendar calendar = Calendar.getInstance();
+            //We could make it happened at specific time in a day
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.add(Calendar.MINUTE, 1);
 
-            manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + 5000, 10000, getIntent(context));
-            //AlarmManager.INTERVAL_FIFTEEN_MINUTES
+            manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis() + 5000,AlarmManager.INTERVAL_FIFTEEN_MINUTES, getIntent(context));
         }
 
     }

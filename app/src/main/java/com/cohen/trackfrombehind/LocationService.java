@@ -208,6 +208,7 @@ public class LocationService extends Service {
                         .setLat(locationResult.getLastLocation().getLatitude())
                         .setLon(locationResult.getLastLocation().getLongitude())
                         .setSpeed(locationResult.getLastLocation().getSpeed() / 3.6);
+
                 String json = new Gson().toJson(loc);
                 intent.putExtra(BROADCAST_NEW_LOCATION_EXTRA_KEY, json);
                 LocalBroadcastManager.getInstance(LocationService.this).sendBroadcast(intent);
