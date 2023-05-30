@@ -1,9 +1,15 @@
 package com.cohen.trackfrombehind;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,8 +27,13 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
+import com.google.gson.Gson;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 
 /**
@@ -34,6 +45,10 @@ public class PolyActivity extends AppCompatActivity
         OnMapReadyCallback,
         GoogleMap.OnPolylineClickListener,
         GoogleMap.OnPolygonClickListener {
+
+    private Vector<Loc> lastLoc = new Vector<>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +62,19 @@ public class PolyActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
+    private BroadcastReceiver myRadio = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String json = intent.getStringExtra(LocationService.BROADCAST_NEW_LOCATION_EXTRA_KEY);
+            Loc loc = new Gson().fromJson(json, Loc.class);
+            //info.setText(loc.getLat() + "\n" + loc.getLon() + "\n" + loc.getSpeed());
+            lastLoc.add(loc);
+
+        }
+
+    };
+
 
     /**
      * Manipulates the map when it's available.
@@ -118,7 +146,55 @@ public class PolyActivity extends AppCompatActivity
         // Set listeners for click events.
         googleMap.setOnPolylineClickListener(this);
         googleMap.setOnPolygonClickListener(this);
+
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+
+                if(lastLoc.size()!=0) {
+                    Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
+                            .clickable(true)
+                            .add(
+                                    new LatLng(lastLoc.get(lastLoc.size() - 1).getLat(), lastLoc.get(lastLoc.size() - 1).getLon())));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastLoc.get(lastLoc.size() - 1).getLat(), lastLoc.get(lastLoc.size() - 1).getLon()), 10));
+                }
+            }
+        }, 0, 1000);//put here time 1000 milliseconds=1 second
+
+        /*
+        BroadcastReceiver myRadio = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String json = intent.getStringExtra(LocationService.BROADCAST_NEW_LOCATION_EXTRA_KEY);
+                Loc loc = new Gson().fromJson(json, Loc.class);
+                //info.setText(loc.getLat() + "\n" + loc.getLon() + "\n" + loc.getSpeed());
+
+                Polyline polyline2 = googleMap.addPolyline(new PolylineOptions()
+                        .clickable(true)
+                        .add(
+                                new LatLng(loc.getLat(), loc.getLon())));
+                polyline2.setTag("A");
+                stylePolyline(polyline2);
+            }
+        };
+        */
+
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter(LocationService.BROADCAST_NEW_LOCATION);
+        LocalBroadcastManager.getInstance(this).registerReceiver(myRadio, intentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(myRadio);
+    }
+
+
 
     private static final int COLOR_BLACK_ARGB = 0xff000000;
     private static final int POLYLINE_STROKE_WIDTH_PX = 12;

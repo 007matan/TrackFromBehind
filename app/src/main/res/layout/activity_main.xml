@@ -39,4 +39,15 @@
         android:layout_below="@id/start"
         />
 
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/poly"
+        android:text="To Map"
+        android:layout_below="@+id/stop"
+        android:layout_centerHorizontal="true">
+
+    </com.google.android.material.button.MaterialButton>
+
+
 </RelativeLayout>

@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.gson.Gson;
 
@@ -19,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ExtendedFloatingActionButton start;
     private ExtendedFloatingActionButton stop;
+
+    private MaterialButton map;
     private TextView info;
 
     public static final String SP_KEY_SERVICE = "SP_KEY_SERVICE";
@@ -40,10 +43,17 @@ public class MainActivity extends AppCompatActivity {
         start = findViewById(R.id.start);
         stop = findViewById(R.id.stop);
         info = findViewById(R.id.info);
+        map = findViewById(R.id.poly);
         start.setOnClickListener(v -> startService());
         stop.setOnClickListener(v -> stopService());
+        map.setOnClickListener(v->polyActivity());
 
         MyReminder.startReminder(this);
+    }
+
+    private void polyActivity() {
+        startActivity(new Intent(this, PolyActivity.class));
+        finish();
     }
 
     @Override
