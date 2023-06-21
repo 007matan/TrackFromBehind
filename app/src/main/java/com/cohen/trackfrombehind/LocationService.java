@@ -55,11 +55,13 @@ public class LocationService extends Service {
     public static final String START_FOREGROUND_SERVICE = "START_FOREGROUND_SERVICE";
     public static final String STOP_FOREGROUND_SERVICE = "STOP_FOREGROUND_SERVICE";
 
+    public static final String SP_KEY_LOCATION = "SP_KEY_LOCATION";
+
 
     public static int NOTIFICATION_ID = 154;
     private int lastShownNotificationId = -1;
-    public static String CHANNEL_ID = "com.cohen.class23a_ands_4.CHANNEL_ID_FOREGROUND";
-    public static String MAIN_ACTION = "com.guy.class23a_ands_4.locationservice.action.main";
+    public static String CHANNEL_ID = "com.cohen.trackfrombehind.CHANNEL_ID_FOREGROUND";
+    public static String MAIN_ACTION = "com.cohen.trackfrombehind.locationservice.action.main";
     private NotificationCompat.Builder notificationBuilder;
     private boolean isServiceRunningRightNow = false;
 
@@ -207,8 +209,22 @@ public class LocationService extends Service {
                 Loc loc = new Loc()
                         .setLat(locationResult.getLastLocation().getLatitude())
                         .setLon(locationResult.getLastLocation().getLongitude())
-                        .setSpeed(locationResult.getLastLocation().getSpeed() / 3.6);
+                        .setSpeed(locationResult.getLastLocation().getSpeed() * 3.6);
 
+                /*
+                TrackList trackList = new TrackList();
+                String track_list = MySPV3.getInstance().getString(SP_KEY_LOCATION, "NuN");
+                if(track_list != "NuN" && track_list != ""){
+                    trackList = new Gson().fromJson(track_list, TrackList.class);
+                    trackList.addLoc(loc);
+                }
+                else {
+                    trackList.addLoc(loc);
+                }
+                String jsonTrackList = new Gson().toJson(trackList);
+                MySPV3.getInstance().putString(SP_KEY_LOCATION, jsonTrackList);
+
+                 */
                 String json = new Gson().toJson(loc);
                 intent.putExtra(BROADCAST_NEW_LOCATION_EXTRA_KEY, json);
                 LocalBroadcastManager.getInstance(LocationService.this).sendBroadcast(intent);
@@ -272,7 +288,7 @@ public class LocationService extends Service {
 
     private void notifyToUserForForegroundService() {
         // On notification click
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, PolyActivity.class);
         notificationIntent.setAction(MAIN_ACTION);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

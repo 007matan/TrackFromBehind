@@ -70,7 +70,10 @@ public class SplashActivity extends AppCompatActivity {
 
         //To Log In
         private void startApp() {
-            startActivity(new Intent(this, MainActivity.class));
+            if(MySPV3.getInstance().getString(RegisterActivity.SP_KEY_TRAINER, "NuN") == "NuN" || MySPV3.getInstance().getString(RegisterActivity.SP_KEY_TRAINER, "NuN") == "")
+                startActivity(new Intent(this, RegisterActivity.class));
+            else
+                startActivity(new Intent(this, PermissionActivity.class));
             finish();
         }
 }

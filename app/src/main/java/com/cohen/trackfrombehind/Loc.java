@@ -6,6 +6,7 @@ public class Loc {
     private double lon = 0.0;
     private double speed = 0.0;
 
+
     public Loc() {}
 
     public double getLat() {
