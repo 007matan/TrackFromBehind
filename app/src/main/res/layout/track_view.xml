@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp">
+
+    <Button
+        android:id="@+id/id_BTN_choose"
+        android:layout_width="100dp"
+        android:layout_height="56dp"
+        android:backgroundTint="#B68843"
+        android:layout_marginEnd="20dp"
+        android:text="choose"/>
+    <TextView
+        android:id="@+id/id_TXT_distance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/id_BTN_choose"
+        android:text="distance: "/>
+
+    <TextView
+        android:id="@+id/id_TXT_calories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/id_TXT_distance"
+        android:layout_toEndOf="@id/id_BTN_choose"
+        android:text="calories: "/>
+
+    <TextView
+        android:id="@+id/id_TXT_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/id_TXT_calories"
+        android:layout_toEndOf="@id/id_BTN_choose"
+        android:text="time: "/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/id_BTN_choose"
+        android:layout_marginTop="10dp"
+        android:background="#CD2828"/>
+
+</RelativeLayout>

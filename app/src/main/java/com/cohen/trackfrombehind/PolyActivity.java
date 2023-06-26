@@ -11,10 +11,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -75,24 +77,15 @@ public class PolyActivity extends AppCompatActivity
     private TextView id_poly_sec;
     private boolean running;
 
+    private AppCompatImageButton id_IMG_BTN_torecords;
+
     public static final String SP_KEY_SERVICE = "SP_KEY_SERVICE";
     public static final String SP_KEY_START_TIME = "SP_KEY_START_TIME";
-
-
-    private Vector<Loc> lastLoc = new Vector<>();
-
-
-    private long startTime;
+    public static final String SP_KEY_TRACK_INFO = "SP_KEY_TRACK_INFO";
 
     GoogleMap googleMap = null;
-    //Polyline polyline = null;
-    //ArrayList<LatLng> latLngVector = new ArrayList<LatLng>();
-    //private LatLng[] latlng = new LatLng[10];
 
     private PolylineOptions polylineOptions = new PolylineOptions();
-    //List<LatLng> originalLatLngList = new ArrayList<>();
-
-
 
 
     @Override
@@ -117,6 +110,15 @@ public class PolyActivity extends AppCompatActivity
     private void initViews() {
         start.setOnClickListener(v -> startService(v));
         stop.setOnClickListener(v -> stopService(v));
+
+        id_IMG_BTN_torecords.setOnClickListener(v -> toTracksRecord(v));
+    }
+
+    private void toTracksRecord(View v) {
+        // you can ask if thers ant record first
+
+
+        startActivity(new Intent(this, TrackRecordActivity.class));
     }
 
 
@@ -127,10 +129,12 @@ public class PolyActivity extends AppCompatActivity
 
         start = findViewById(R.id.start);
         stop = findViewById(R.id.stop);
-        //chronometer = findViewById(R.id.chronometer);
+        chronometer = findViewById(R.id.chronometer);
 
-        id_poly_min = findViewById(R.id.id_poly_min);
-        id_poly_sec = findViewById(R.id.id_poly_sec);
+        id_IMG_BTN_torecords = findViewById(R.id.id_IMG_BTN_torecords);
+
+        //id_poly_min = findViewById(R.id.id_poly_min);
+        //id_poly_sec = findViewById(R.id.id_poly_sec);
     }
 
     private BroadcastReceiver myRadio = new BroadcastReceiver() {
@@ -160,62 +164,39 @@ public class PolyActivity extends AppCompatActivity
                 String jsonTrackList = new Gson().toJson(trackList);
                 MySPV3.getInstance().putString(SP_KEY_LOCATION, jsonTrackList);
 
-
-
-                //String jsonTrackList = MySPV3.getInstance().getString(LocationService.SP_KEY_LOCATION, "NuN");
                 String jsonBikerInfo = MySPV3.getInstance().getString(RegisterActivity.SP_KEY_TRAINER, "NuN");
 
-                //if (jsonTrackList != "NuN" && jsonTrackList != "") {
-
-
-                    //TrackList trackList = new Gson().fromJson(jsonTrackList, TrackList.class);
-
-                    Trainer trainer = new Gson().fromJson(jsonBikerInfo, Trainer.class);
-                    int size_LocList = trackList.getTracks().size();
-                    double calc_dis = 0;
-                    double calc_cal = 0;
-                    if (size_LocList > 3) {
-                        // if running - from SP
-                        //String jsonDistance =  MySPV3.getInstance().getString(SP_KEY_DISTANCE, "NaN");
-                        //Double distance = Double.parseDouble(jsonDistance);
-                        //check
-
-                        //
-                        //distance += haversineDistance(trackList.getTracks().get(idx).getLat(), trackList.getTracks().get(idx).getLon(), trackList.getTracks().get(idx + 1).getLat(), trackList.getTracks().get(idx + 1).getLon());
-                        for (int idx = 3; idx < size_LocList - 3; idx+=3) {
-                            calc_dis += haversineDistance(trackList.getTracks().get(idx).getLat(), trackList.getTracks().get(idx).getLon(), trackList.getTracks().get(idx -3).getLat(), trackList.getTracks().get(idx -3).getLon());
-                            calc_cal += calculateCaloriesBurned(trackList.getTracks().get(idx).getLat(), trackList.getTracks().get(idx).getLon(), trackList.getTracks().get(idx -3).getLat(), trackList.getTracks().get(idx -3).getLon(),
-                                    ((trackList.getTracks().get(idx).getSpeed() + trackList.getTracks().get(idx-3).getSpeed())/2),
-                                    trainer.getHeight(), trainer.getWeight(), trainer.getTrainAWeek(), Calendar.getInstance().get(Calendar.YEAR) - trainer.getBirthYear());
-                        }
-                        id_map_dis.setText(new DecimalFormat("##.##").format(calc_dis));
-                        id_map_cal.setText(new DecimalFormat("##.#").format(calc_cal));
+                Trainer trainer = new Gson().fromJson(jsonBikerInfo, Trainer.class);
+                int size_LocList = trackList.getTracks().size();
+                double calc_dis = 0;
+                double calc_cal = 0;
+                if (size_LocList > 3) {
+                    for (int idx = 3; idx < size_LocList - 3; idx+=3) {
+                        calc_dis += haversineDistance(trackList.getTracks().get(idx).getLat(), trackList.getTracks().get(idx).getLon(), trackList.getTracks().get(idx -3).getLat(), trackList.getTracks().get(idx -3).getLon());
+                        calc_cal += calculateCaloriesBurned(trackList.getTracks().get(idx).getLat(), trackList.getTracks().get(idx).getLon(), trackList.getTracks().get(idx -3).getLat(), trackList.getTracks().get(idx -3).getLon(),
+                                ((trackList.getTracks().get(idx).getSpeed() + trackList.getTracks().get(idx-3).getSpeed())/2),
+                                trainer.getHeight(), trainer.getWeight(), trainer.getTrainAWeek(), Calendar.getInstance().get(Calendar.YEAR) - trainer.getBirthYear());
                     }
-                    if(size_LocList % 4 == 0 || size_LocList == 1){
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(loc.getLat(), loc.getLon()), 17));
-                    }
-
-                    long currTime  = System.currentTimeMillis();
-                    String jsonStartTime = MySPV3.getInstance().getString(SP_KEY_START_TIME, "NuN");
-                    long start_time = Long.valueOf(jsonStartTime);
-                    int timSec = Long.valueOf(/*startTime*/ start_time - currTime).intValue() / 1000;
-                    int minuets = timSec / 60;
-                    int sec = timSec - (minuets * 60);
-                    id_poly_min.setText(String.valueOf(minuets * -1));
-                    id_poly_sec.setText(String.valueOf(sec * -1));
-               // }
+                    id_map_dis.setText(new DecimalFormat("##.##").format(calc_dis));
+                    id_map_cal.setText(new DecimalFormat("##.#").format(calc_cal));
+                }
+                if(size_LocList % 4 == 0 || size_LocList == 1){
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(loc.getLat(), loc.getLon()), 17));
+                }
+                long currTime  = System.currentTimeMillis();
+                String jsonStartTime = MySPV3.getInstance().getString(SP_KEY_START_TIME, "NuN");
+                long start_time = Long.valueOf(jsonStartTime);
+                int timSec = Long.valueOf(/*startTime*/ start_time - currTime).intValue() / 1000;
+                int minuets = timSec / 60;
+                int sec = timSec - (minuets * 60);
+                //id_poly_min.setText(String.valueOf(minuets * -1));
+                //id_poly_sec.setText(String.valueOf(sec * -1));
             }
 
         }
 
     };
 
-    /**
-     * Manipulates the map when it's available.
-     * The API invokes this callback when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * In this tutorial, we add polylines and polygons to represent routes and areas on the map.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
@@ -255,20 +236,17 @@ public class PolyActivity extends AppCompatActivity
             }
         }
 
-
-
         // Set listeners for click events.
-        googleMap.setOnPolylineClickListener(this);
-        googleMap.setOnPolygonClickListener(this);
-
-
-
+        //googleMap.setOnPolylineClickListener(this);
+        //googleMap.setOnPolygonClickListener(this);
     }
     @Override
     protected void onStart() {
         super.onStart();
         IntentFilter intentFilter = new IntentFilter(LocationService.BROADCAST_NEW_LOCATION);
         LocalBroadcastManager.getInstance(this).registerReceiver(myRadio, intentFilter);
+
+
     }
 
     @Override
@@ -280,16 +258,18 @@ public class PolyActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-
         String isActive = MySPV3.getInstance().getString(SP_KEY_SERVICE, "NuN");
-        if(isActive != "NuN" && isActive != "" && isActive != "OFF"){
-            start.setVisibility(View.VISIBLE);
-            stop.setVisibility(View.INVISIBLE);
+        if(/*isActive != "NuN" && isActive != ""  &&*/ isActive == "ACTIVE"){
+            start.setVisibility(View.INVISIBLE);
+            stop.setVisibility(View.VISIBLE);
+            reEnterChronometer();
         }
         else{
-            stop.setVisibility(View.VISIBLE);
-            start.setVisibility(View.INVISIBLE);
+            stop.setVisibility(View.INVISIBLE);
+            start.setVisibility(View.VISIBLE);
+
         }
+
     }
 
     private void startService(View view) {
@@ -304,13 +284,9 @@ public class PolyActivity extends AppCompatActivity
             startService(intent);
         }
 
-        //MySP mySP = new MySP(this);
-        //mySP.putString(SP_KEY_SERVICE, "ACTIVE");
-
         MySPV3.getInstance().putString(SP_KEY_SERVICE, "ACTIVE");
-        //startChronometer(view);
+        startChronometer(view);
 
-        startTime = System.currentTimeMillis();
         MySPV3.getInstance().putString(SP_KEY_START_TIME, String.valueOf(System.currentTimeMillis()));
 
         start.setVisibility(View.INVISIBLE);
@@ -330,14 +306,40 @@ public class PolyActivity extends AppCompatActivity
         } else {
             startService(intent);
         }
-        //MySP mySP = new MySP(this);
-        //mySP.putString(SP_KEY_SERVICE, "OFF");
+
+        TrackList trackList = new TrackList();
+        String track_list = MySPV3.getInstance().getString(SP_KEY_LOCATION, "NuN");
+        trackList = new Gson().fromJson(track_list, TrackList.class);
+
+        TrackInfo trackInfo = new TrackInfo()
+                .setPolylineOptions(polylineOptions)
+                .setCalories(Double.valueOf(id_map_cal.getText().toString()))
+                .setDistance(Double.valueOf(id_map_dis.getText().toString()))
+                .setTime(chronometer.getText().toString())
+                .setTrackList(trackList);
+
+        TrackInfoList trackInfoList = new TrackInfoList();
+        String track_info_list = MySPV3.getInstance().getString(SP_KEY_TRACK_INFO, "NuN");
+        if(track_info_list != "NuN" && track_info_list != ""){
+            trackInfoList = new Gson().fromJson(track_info_list, TrackInfoList.class);
+            trackInfoList.addTrackInfo(trackInfo);
+        }
+        else {
+            trackInfoList.addTrackInfo(trackInfo);
+        }
+
+
+        String jsonTrackListInfo = new Gson().toJson(trackInfoList);
+        MySPV3.getInstance().putString(SP_KEY_TRACK_INFO, jsonTrackListInfo);
 
         MySPV3.getInstance().putString(SP_KEY_SERVICE, "OFF");
         MySPV3.getInstance().putString(LocationService.SP_KEY_LOCATION, "");
         MySPV3.getInstance().putString(SP_KEY_START_TIME, "");
 
-        //stopChronometer(view);
+        stopChronometer(view);
+
+
+
 
         stop.setVisibility(View.INVISIBLE);
         start.setVisibility(View.VISIBLE);
@@ -437,106 +439,7 @@ public class PolyActivity extends AppCompatActivity
 
         return metabolicRate;
     }
-    public static double calculateDistanceV2(double lat1, double lon1, double lat2, double lon2) {
-        // Convert decimal degrees to radians
-        double latRad1 = Math.toRadians(lat1);
-        double lonRad1 = Math.toRadians(lon1);
-        double latRad2 = Math.toRadians(lat2);
-        double lonRad2 = Math.toRadians(lon2);
 
-        // Haversine formula
-        double dlon = lonRad2 - lonRad1;
-        double dlat = latRad2 - latRad1;
-        double a = Math.pow(Math.sin(dlat / 2), 2) + Math.cos(latRad1) * Math.cos(latRad2) * Math.pow(Math.sin(dlon / 2), 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double radius = 6371; // Radius of the Earth in kilometers. Change this value for miles or other units.
-        double distance = radius * c;
-
-        return distance;
-    }
-    public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        // Convert decimal degrees to radians
-        double lat1Rad = Math.toRadians(lat1);
-        double lon1Rad = Math.toRadians(lon1);
-        double lat2Rad = Math.toRadians(lat2);
-        double lon2Rad = Math.toRadians(lon2);
-
-        // Vincenty's formulae
-        double deltaLon = lon2Rad - lon1Rad;
-        double U1 = Math.atan((1 - FLATTENING) * Math.tan(lat1Rad));
-        double U2 = Math.atan((1 - FLATTENING) * Math.tan(lat2Rad));
-        double sinU1 = Math.sin(U1);
-        double cosU1 = Math.cos(U1);
-        double sinU2 = Math.sin(U2);
-        double cosU2 = Math.cos(U2);
-
-        double lambdaLon = deltaLon;
-        double lambdaPrime = 2 * Math.PI;
-        int iterLimit = 100; // Iteration limit for convergence
-
-        double sinLambdaLon=0;
-        double cosLambdaLon=0;
-        double sinSigma=0;
-        double cosSigma=0;
-        double sigma=0;
-        double sinAlpha=0;
-        double cosSqAlpha = 0;
-        double cos2SigmaM=0;
-        double C=0;
-
-        while (Math.abs(lambdaLon - lambdaPrime) > 1e-12 && iterLimit > 0) {
-            sinLambdaLon = Math.sin(lambdaLon);
-            cosLambdaLon = Math.cos(lambdaLon);
-            sinSigma = Math.sqrt((cosU2 * sinLambdaLon) * (cosU2 * sinLambdaLon) +
-             (cosU1 * sinU2 - sinU1 * cosU2 * cosLambdaLon) *
-                     (cosU1 * sinU2 - sinU1 * cosU2 * cosLambdaLon));
-            cosSigma = sinU1 * sinU2 + cosU1 * cosU2 * cosLambdaLon;
-            sigma = Math.atan2(sinSigma, cosSigma);
-            sinAlpha = (cosU1 * cosU2 * sinLambdaLon) / sinSigma;
-            cosSqAlpha = 1 - sinAlpha * sinAlpha;
-            cos2SigmaM = cosSigma - (2 * sinU1 * sinU2) / cosSqAlpha;
-            C = FLATTENING / 16 * cosSqAlpha * (4 + FLATTENING * (4 - 3 * cosSqAlpha));
-            lambdaPrime = lambdaLon;
-            lambdaLon = deltaLon + (1 - C) * FLATTENING * sinAlpha *
-                    (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma *
-                            (-1 + 2 * cos2SigmaM * cos2SigmaM)));
-
-            iterLimit--;
-        }
-
-        if (iterLimit == 0) {
-            throw new RuntimeException("Vincenty's formulae did not converge");
-        }
-
-        double uSq = cosSqAlpha * ((EQUATORIAL_RADIUS * EQUATORIAL_RADIUS -
-                (EQUATORIAL_RADIUS * FLATTENING) *
-                        (EQUATORIAL_RADIUS * FLATTENING)) /
-                (EQUATORIAL_RADIUS * FLATTENING)) *
-                ((EQUATORIAL_RADIUS * EQUATORIAL_RADIUS -
-                        (EQUATORIAL_RADIUS * FLATTENING) *
-                                (EQUATORIAL_RADIUS * FLATTENING)) /
-                        (EQUATORIAL_RADIUS * FLATTENING));
-        double A = 1 + (uSq / 16384) *
-                (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
-        double B = (uSq / 1024) *
-                (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
-        double deltaSigma = B *
-                Math.sin(sigma) *
-                (cos2SigmaM + (B / 4) *
-                        (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) -
-                                (B / 6) * cos2SigmaM *
-                                        (-3 + 4 * sinSigma * sinSigma) *
-                                        (-3 + 4 * cos2SigmaM * cos2SigmaM)));
-        double distance = EQUATORIAL_RADIUS * A * (sigma - deltaSigma);
-
-        double tolerance = 0.05; // Set the tolerance value
-
-        if (Math.abs(distance) < tolerance) {
-            return Math.abs(distance) < 0.05 ? 0.0 : distance;
-        }
-
-        return distance;// distance/1609.34; mile
-    }
     public void startChronometer(View v){
         //if(!running){
         chronometer.setBase(SystemClock.elapsedRealtime());
@@ -545,10 +448,19 @@ public class PolyActivity extends AppCompatActivity
         //running = true;
         //}
     }
+    public void reEnterChronometer(){
+        long currTime  = System.currentTimeMillis();
+        String jsonStartTime = MySPV3.getInstance().getString(SP_KEY_START_TIME, "NuN");
+        long start_time = Long.valueOf(jsonStartTime);
+        int timmillis = Long.valueOf(/*startTime*/ start_time - currTime).intValue();
+        chronometer.setBase(SystemClock.elapsedRealtime()+ timmillis);
+        chronometer.start();
+    }
 
     public void stopChronometer(View v){
         //if(running){
         chronometer.stop(); //only stop the text
+        //chronometer.getText().toString();
         //running = false;
         //}
     }
@@ -563,10 +475,6 @@ public class PolyActivity extends AppCompatActivity
             }
         }
     }
-
-
-
-
 
     private static final int COLOR_BLACK_ARGB = 0xff000000;
     private static final int POLYLINE_STROKE_WIDTH_PX = 12;
@@ -696,3 +604,38 @@ public class PolyActivity extends AppCompatActivity
         polygon.setFillColor(fillColor);
     }
 }
+
+/*
+ <LinearLayout
+        android:id="@+id/id_poly_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/id_map_LL">
+        <TextView
+            android:id="@+id/id_poly_sec"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="00"
+            android:textSize="20sp">
+
+        </TextView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="20sp"
+            android:text=":"/>
+
+
+        <TextView
+            android:id="@+id/id_poly_min"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="00"
+            android:textSize="20sp">
+
+        </TextView>
+
+    </LinearLayout>
+ */

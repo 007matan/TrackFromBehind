@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.cohen.trackfrombehind.PolyActivity">
 
     <LinearLayout
@@ -85,37 +85,34 @@
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/id_poly_timer"
+
+
+    <Chronometer
+        android:id="@+id/chronometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:textSize="40sp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/id_map_LL">
-        <TextView
-            android:id="@+id/id_poly_sec"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="20sp">
+        android:layout_below="@+id/id_map_LL">
 
-        </TextView>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="20sp"
-            android:text=":"/>
+    </Chronometer>
 
+<androidx.cardview.widget.CardView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/chronometer"
+    android:layout_marginStart="20dp"
+    app:cardCornerRadius="45dp">
 
-        <TextView
-            android:id="@+id/id_poly_min"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="20sp">
-
-        </TextView>
-
-    </LinearLayout>
-
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/id_IMG_BTN_torecords"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:paddingTop="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_cycling"
+        android:background="#031f6f"/>
+</androidx.cardview.widget.CardView>
 
 
 
@@ -124,7 +121,7 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@id/id_poly_timer"/>
+    android:layout_below="@id/chronometer"/>
 
 
 
