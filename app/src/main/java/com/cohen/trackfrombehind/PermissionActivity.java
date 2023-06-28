@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -30,8 +31,15 @@ public class PermissionActivity extends AppCompatActivity {
         LOCATION_ENABLE
     }
 
+    private enum PERMISSION_STATE {
+        PERMISSION_GRANTED,
+        PERMISSION_DENIED_ONCE,
+        PERMISSION_DENIDE
+    }
+
 
     private Button id_per_continue_BTN;
+    private Button id_per_continueSec_BTN;
 
     //private STATE state = PermissionActivity.STATE.NA;
 
@@ -40,24 +48,20 @@ public class PermissionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_permission);
 
-        //
+
         id_per_continue_BTN = findViewById(R.id.id_per_cont_BTN);
-        //findViews();
+        id_per_continueSec_BTN = findViewById(R.id.id_per_contSec_BTN);
         initViews();
 
-        updateActivity();
+        permissionsCheckInit();
     }
 
-    private void updateActivity() {
+    private void permissionsCheckInit(){
         boolean isLocationServiceOn = isLocationEnabled(this);
-        int result_fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        int result_coarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
-        if (result_fine == PackageManager.PERMISSION_GRANTED && result_coarse == PackageManager.PERMISSION_GRANTED) {
-            //id_main_camera.setBackgroundColor(Color.parseColor("#7CFC00"));
-            //Toast.makeText(PermissionActivity.this, "have Permission for background location", Toast.LENGTH_SHORT).show();
+        PERMISSION_STATE result_fine = permissionCheckYesNO(Manifest.permission.ACCESS_FINE_LOCATION);
+        PERMISSION_STATE result_coarse = permissionCheckYesNO(Manifest.permission.ACCESS_COARSE_LOCATION);
+        if (result_fine == PERMISSION_STATE.PERMISSION_GRANTED && result_coarse == PERMISSION_STATE.PERMISSION_GRANTED) {
             if(isLocationServiceOn){
-                //Toast.makeText(SecondActivity.this, "location Service On", Toast.LENGTH_SHORT).show();
-                //newActivity
                 startActivity(new Intent(this, PolyActivity.class));
                 finish();
             }
@@ -65,31 +69,29 @@ public class PermissionActivity extends AppCompatActivity {
                 Toast.makeText(PermissionActivity.this, "location Service Off, Please activate before continue", Toast.LENGTH_SHORT).show();
         }
     }
-    private void updateActivity2() {
-        boolean isLocationServiceOn = isLocationEnabled(this);
-        int result_fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        int result_coarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
-        if (result_fine == PackageManager.PERMISSION_GRANTED && result_coarse == PackageManager.PERMISSION_GRANTED) {
-            //id_main_camera.setBackgroundColor(Color.parseColor("#7CFC00"));
-            //Toast.makeText(PermissionActivity.this, "have Permission for background location", Toast.LENGTH_SHORT).show();
-            if(isLocationServiceOn){
-                //Toast.makeText(SecondActivity.this, "location Service On", Toast.LENGTH_SHORT).show();
-                //newActivity
-                startActivity(new Intent(this, PolyActivity.class));
-                finish();
+
+    private PERMISSION_STATE permissionCheck(String prm){
+        boolean granted = ContextCompat.checkSelfPermission(this ,prm) == PackageManager.PERMISSION_GRANTED;
+        if(granted){
+            return PERMISSION_STATE.PERMISSION_GRANTED;
+        } else{
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, prm)){
+                Toast.makeText(PermissionActivity.this, "Be aware, it will be the last time you can give permission from here", Toast.LENGTH_SHORT).show();
+                return PERMISSION_STATE.PERMISSION_DENIED_ONCE;
             }
-            else
-                Toast.makeText(PermissionActivity.this, "location Service Off", Toast.LENGTH_SHORT).show();
-        } else {
-            //id_main_camera.setBackgroundColor(Color.parseColor("#710C04"));
-            //Toast.makeText(PermissionActivity.this, "Permission denied", Toast.LENGTH_SHORT).show();
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)){
-                Toast.makeText(PermissionActivity.this, "Be aware, the next time will be the last time you have this option from here", Toast.LENGTH_LONG).show();//should be right before the *second* time, and right after the *first* time - "it wiil be the last time you can do it from here
-            }
-            else
-            Toast.makeText(PermissionActivity.this, "Please active from app setting location permission", Toast.LENGTH_LONG).show();
+            return PERMISSION_STATE.PERMISSION_DENIDE;
         }
     }
+
+    private PERMISSION_STATE permissionCheckYesNO(String prm){
+        boolean granted = ContextCompat.checkSelfPermission(this ,prm) == PackageManager.PERMISSION_GRANTED;
+        if(granted){
+            return PERMISSION_STATE.PERMISSION_GRANTED;
+        }
+        return PERMISSION_STATE.PERMISSION_DENIDE;
+
+    }
+
 
     public static Boolean isLocationEnabled(Context context){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -104,18 +106,34 @@ public class PermissionActivity extends AppCompatActivity {
         }
     }
 
-    private void findViews() {
-        id_per_continue_BTN.findViewById(R.id.id_per_cont_BTN);
-    }
 
     private void initViews() {
-        id_per_continue_BTN.setOnClickListener(v -> permissionAsk());
+        id_per_continue_BTN.setOnClickListener(v -> requestCoarse());
+        id_per_continueSec_BTN.setOnClickListener(v -> requestFine());
     }
 
-    private void permissionAsk() {
-        updateActivity(); //updateActivity because - maybe the user just needed to turn on location
+
+    private void requestCoarse(){
         requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION);
+        PERMISSION_STATE currState = permissionCheck(Manifest.permission.ACCESS_COARSE_LOCATION);
+        switch (currState){
+            case PERMISSION_GRANTED:
+                id_per_continue_BTN.setVisibility(View.INVISIBLE);
+                id_per_continueSec_BTN.setVisibility(View.VISIBLE);
+                Toast.makeText(PermissionActivity.this, "Permission Granted - coarse location", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void requestFine(){
         requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        PERMISSION_STATE currState = permissionCheck(Manifest.permission.ACCESS_FINE_LOCATION);
+        switch (currState){
+            case PERMISSION_GRANTED:
+                Toast.makeText(PermissionActivity.this, "Permission Granted - fine location", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, PolyActivity.class));
+                finish();
+                }
+
     }
 
     private ActivityResultLauncher<String> requestPermissionLauncher =
@@ -131,11 +149,12 @@ public class PermissionActivity extends AppCompatActivity {
                     // same time, respect the user's decision. Don't link to system
                     // settings in an effort to convince the user to change their
                     // decision.
-                }
-                updateActivity2();
-            });
 
+                }
+
+            });
     private void permissionDenied() {
         Toast.makeText(PermissionActivity.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
     }
+
 }
