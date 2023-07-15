@@ -10,7 +10,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,15 +20,6 @@ import android.widget.Toast;
 
 public class PermissionActivity extends AppCompatActivity {
 
-    private enum STATE {
-        NA,
-        NO_REGULAR_PERMISSION,
-        NO_BACKGROUND_PERMISSION,
-        LOCATION_DISABLE,
-        LOCATION_SETTINGS_PROCCESS,
-        LOCATION_SETTINGS_OK,
-        LOCATION_ENABLE
-    }
 
     private enum PERMISSION_STATE {
         PERMISSION_GRANTED,
@@ -41,7 +31,6 @@ public class PermissionActivity extends AppCompatActivity {
     private Button id_per_continue_BTN;
     private Button id_per_continueSec_BTN;
 
-    //private STATE state = PermissionActivity.STATE.NA;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +51,7 @@ public class PermissionActivity extends AppCompatActivity {
         PERMISSION_STATE result_coarse = permissionCheckYesNO(Manifest.permission.ACCESS_COARSE_LOCATION);
         if (result_fine == PERMISSION_STATE.PERMISSION_GRANTED && result_coarse == PERMISSION_STATE.PERMISSION_GRANTED) {
             if(isLocationServiceOn){
-                startActivity(new Intent(this, PolyActivity.class));
+                startActivity(new Intent(this, CyclingActivity.class));
                 finish();
             }
             else
@@ -130,7 +119,7 @@ public class PermissionActivity extends AppCompatActivity {
         switch (currState){
             case PERMISSION_GRANTED:
                 Toast.makeText(PermissionActivity.this, "Permission Granted - fine location", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, PolyActivity.class));
+                startActivity(new Intent(this, CyclingActivity.class));
                 finish();
                 }
 

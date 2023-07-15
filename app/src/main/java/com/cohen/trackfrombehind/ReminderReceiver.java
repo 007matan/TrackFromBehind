@@ -45,7 +45,7 @@ public class ReminderReceiver extends BroadcastReceiver {
             // TODO: 23/11/2021 Ask if service should run right now
 
             //String service_status = mySP.getString(MainActivity.SP_KEY_SERVICE, "ACTIVE");
-            String status = MySPV3.getInstance().getString(PolyActivity.SP_KEY_SERVICE, "ACTIVE");
+            String status = MySPV3.getInstance().getString(CyclingActivity.SP_KEY_SERVICE, "ACTIVE");
 
             if (status == "ACTIVE"/*!LocationService.isMyServiceRunning(context)*/) {
                                             //ACTIVE - means that according to user the service should be running
@@ -86,7 +86,7 @@ public class ReminderReceiver extends BroadcastReceiver {
         mContext = mContext.getApplicationContext();
         Log.d("pttt", "createNotification");
 
-        Intent intent = new Intent(mContext, PolyActivity.class);
+        Intent intent = new Intent(mContext, CyclingActivity.class);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 

@@ -5,13 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,20 +36,16 @@ import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.gson.Gson;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 
 /**
  * An activity that displays a Google map with polylines to represent paths or routes,
  * and polygons to represent areas.
  */
-public class PolyActivity extends AppCompatActivity
+public class CyclingActivity extends AppCompatActivity
         implements
         OnMapReadyCallback,
         GoogleMap.OnPolylineClickListener,
@@ -82,6 +76,8 @@ public class PolyActivity extends AppCompatActivity
     public static final String SP_KEY_SERVICE = "SP_KEY_SERVICE";
     public static final String SP_KEY_START_TIME = "SP_KEY_START_TIME";
     public static final String SP_KEY_TRACK_INFO = "SP_KEY_TRACK_INFO";
+    public static final String SP_KEY_SUM_CALORIES = "SP_KEY_SUM_CALORIES";
+    public static final String SP_KEY_SUM_DISTANCE = "SP_KEY_SUM_DISTANCE";
 
     GoogleMap googleMap = null;
 
@@ -93,7 +89,7 @@ public class PolyActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         // Retrieve the content view that renders the map.
-        setContentView(R.layout.activity_map);
+        setContentView(R.layout.activity_cycling);
 
         // Get the SupportMapFragment and request notification when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -108,8 +104,8 @@ public class PolyActivity extends AppCompatActivity
 
 
     private void initViews() {
-        start.setOnClickListener(v -> startService(v));
-        stop.setOnClickListener(v -> stopService(v));
+        start.setOnClickListener(v -> startTrack(v));
+        stop.setOnClickListener(v -> stopTrack(v));
 
         id_IMG_BTN_torecords.setOnClickListener(v -> toTracksRecord(v));
     }
@@ -146,7 +142,14 @@ public class PolyActivity extends AppCompatActivity
 
             if(googleMap != null) {
                 LatLng latLng = new LatLng(loc.getLat(), loc.getLon());
+                googleMap.clear();
                 polylineOptions.add(latLng);
+
+                polylineOptions.endCap(
+                        new CustomCap(
+                                BitmapDescriptorFactory.fromResource(R.drawable.img_arrow), 10));
+
+
                 googleMap.addPolyline(polylineOptions);
                 id_map_speed.setText(new DecimalFormat("##.##").format(loc.getSpeed()));
 
@@ -177,12 +180,21 @@ public class PolyActivity extends AppCompatActivity
                                 ((trackList.getTracks().get(idx).getSpeed() + trackList.getTracks().get(idx-3).getSpeed())/2),
                                 trainer.getHeight(), trainer.getWeight(), trainer.getTrainAWeek(), Calendar.getInstance().get(Calendar.YEAR) - trainer.getBirthYear());
                     }
-                    id_map_dis.setText(new DecimalFormat("##.##").format(calc_dis));
-                    id_map_cal.setText(new DecimalFormat("##.#").format(calc_cal));
+                    String distance = new DecimalFormat("##.##").format(calc_dis);
+                    String calories = new DecimalFormat("##.##").format(calc_cal);
+
+                    String json_sum_distance = new Gson().toJson(distance);
+                    MySPV3.getInstance().putString("SP_KEY_SUM_DISTANCE", distance);
+                    String json_sum_calories = new Gson().toJson(calories);
+                    MySPV3.getInstance().putString("SP_KEY_SUM_CALORIES", calories);
+                    id_map_dis.setText(distance);
+                    id_map_cal.setText(calories);
                 }
                 if(size_LocList % 4 == 0 || size_LocList == 1){
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(loc.getLat(), loc.getLon()), 17));
                 }
+
+
                 long currTime  = System.currentTimeMillis();
                 String jsonStartTime = MySPV3.getInstance().getString(SP_KEY_START_TIME, "NuN");
                 long start_time = Long.valueOf(jsonStartTime);
@@ -205,6 +217,8 @@ public class PolyActivity extends AppCompatActivity
         String jsonTrackList = MySPV3.getInstance().getString(LocationService.SP_KEY_LOCATION, "NuN");
         String jsonBikerInfo = MySPV3.getInstance().getString(RegisterActivity.SP_KEY_TRAINER, "NuN");
 
+
+
         //check if theres track in the SP
         if (jsonTrackList != "NuN" && jsonTrackList != ""){
             TrackList trackList = new Gson().fromJson(jsonTrackList, TrackList.class);
@@ -215,6 +229,9 @@ public class PolyActivity extends AppCompatActivity
                 for(i = 0; i < trackList.getTracks().size(); i++){
                     polylineOptions.add(new LatLng(trackList.getTracks().get(i).getLat(), trackList.getTracks().get(i).getLon()));
                 }
+                //polylineOptions.endCap(
+                //        new CustomCap(
+                 //               BitmapDescriptorFactory.fromResource(R.drawable.img_arrow), 10));
                 googleMap.addPolyline(polylineOptions);
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(trackList.getTracks().get(i-1).getLat(), trackList.getTracks().get(i-1).getLon()), 17));
 
@@ -247,6 +264,19 @@ public class PolyActivity extends AppCompatActivity
         LocalBroadcastManager.getInstance(this).registerReceiver(myRadio, intentFilter);
 
 
+        String isActive = MySPV3.getInstance().getString(SP_KEY_SERVICE, "NuN");
+        if(/*isActive != "NuN" && isActive != ""  &&*/ isActive == "ACTIVE"){
+            start.setVisibility(View.INVISIBLE);
+            stop.setVisibility(View.VISIBLE);
+            reEnterChronometer();
+        }
+        else{
+            stop.setVisibility(View.INVISIBLE);
+            start.setVisibility(View.VISIBLE);
+
+        }
+
+
     }
 
     @Override
@@ -272,7 +302,8 @@ public class PolyActivity extends AppCompatActivity
 
     }
 
-    private void startService(View view) {
+
+    private void startTrack(View view) {
         Intent intent = new Intent(this, LocationService.class);
         intent.setAction(LocationService.START_FOREGROUND_SERVICE);
 
@@ -295,7 +326,7 @@ public class PolyActivity extends AppCompatActivity
     }
 
 
-    private void stopService(View view) {
+    private void stopTrack (View view) {
         Intent intent = new Intent(this, LocationService.class);
         intent.setAction(LocationService.STOP_FOREGROUND_SERVICE);
 
@@ -335,6 +366,8 @@ public class PolyActivity extends AppCompatActivity
         MySPV3.getInstance().putString(SP_KEY_SERVICE, "OFF");
         MySPV3.getInstance().putString(LocationService.SP_KEY_LOCATION, "");
         MySPV3.getInstance().putString(SP_KEY_START_TIME, "");
+        MySPV3.getInstance().putString(SP_KEY_SUM_DISTANCE, "0.0");
+        MySPV3.getInstance().putString(SP_KEY_SUM_CALORIES, "0.0");
 
         stopChronometer(view);
 
@@ -496,7 +529,7 @@ public class PolyActivity extends AppCompatActivity
                 // Use a custom bitmap as the cap at the start of the line.
                 polyline.setEndCap(
                         new CustomCap(
-                                BitmapDescriptorFactory.fromResource(R.drawable.ic_arrow), 10));
+                                BitmapDescriptorFactory.fromResource(R.drawable.img_arrow), 10));
                 break;
             case "B":
                 // Use a round cap at the start of the line.

@@ -40,7 +40,7 @@ public class TrackRecordActivity extends AppCompatActivity implements MyTrackInf
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         trackInfoList = new TrackInfoList();
-        String track_info_list = MySPV3.getInstance().getString(PolyActivity.SP_KEY_TRACK_INFO, "NuN");
+        String track_info_list = MySPV3.getInstance().getString(CyclingActivity.SP_KEY_TRACK_INFO, "NuN");
         if(track_info_list != "NuN" && track_info_list != ""){
             trackInfoList = new Gson().fromJson(track_info_list, TrackInfoList.class);
             recyclerView.setAdapter(new TrackInfoAdapter(getApplicationContext(), trackInfoList, this));
@@ -56,6 +56,7 @@ public class TrackRecordActivity extends AppCompatActivity implements MyTrackInf
         TrackList trackList = new TrackList();
         trackList = trackInfoList.getTracksInfo().get(position).getTrackList();
         int i;
+        polylineOptions = null;
         for(i = 0; i < trackList.getTracks().size(); i++){
             polylineOptions.add(new LatLng(trackList.getTracks().get(i).getLat(), trackList.getTracks().get(i).getLon()));
         }

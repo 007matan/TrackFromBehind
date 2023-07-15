@@ -7,22 +7,32 @@
     tools:context=".TrackRecordActivity">
 
     <TextView
+        android:id="@+id/id_TXT_tracks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:textSize="25sp"
         android:text="Your Tracks"/>
 
+    <LinearLayout
+        android:id="@+id/id_record_LL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:backgroundTint="#EC7130"
+        android:layout_below="@+id/id_TXT_tracks">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/id_RE_VW_tracks"
         android:layout_width="match_parent"
-        android:layout_height="360dp"/>
+        android:layout_height="300dp"/>
+
+    </LinearLayout>
 
     <fragment
         android:id="@+id/id_record_map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/id_RE_VW_tracks"/>
+        android:layout_below="@id/id_record_LL"/>
 
 </RelativeLayout>

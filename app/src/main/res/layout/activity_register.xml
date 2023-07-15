@@ -39,13 +39,24 @@
 
             </TextView>
 
-            <EditText
+            <TextView
                 android:id="@+id/id_reg_birth_EDT"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="2">
+                android:layout_weight="2"
+                android:text="JAN 01 2020"
+                android:textSize="15sp"
+                style="?android:spinnerDropDownItemStyle">
 
-            </EditText>
+            </TextView>
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/id_BTN_calender"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/ic_calender">
+
+            </androidx.appcompat.widget.AppCompatImageButton>
 
 
         </androidx.appcompat.widget.LinearLayoutCompat>
@@ -58,7 +69,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:text="Height"
+                android:text="Height (cm)"
                 android:layout_marginTop="15dp"
                 android:layout_weight="1">
 
@@ -83,7 +94,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:text="Weight"
+                android:text="Weight (klg)"
                 android:layout_marginTop="15dp"
                 android:layout_weight="1">
 

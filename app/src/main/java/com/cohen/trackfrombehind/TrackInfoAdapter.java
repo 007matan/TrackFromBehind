@@ -31,9 +31,9 @@ public class TrackInfoAdapter extends RecyclerView.Adapter<MyTrackInfoViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull MyTrackInfoViewHolder holder, int position) {
-        holder.id_TXT_distance.setText(String.valueOf(trackInfoList.getTracksInfo().get(position).getDistance()));
-        holder.id_TXT_calories.setText(String.valueOf(trackInfoList.getTracksInfo().get(position).getCalories()));
-        holder.id_TXT_time.setText(trackInfoList.getTracksInfo().get(position).getTime());
+        holder.id_TXT_distance.setText(holder.id_TXT_distance.getText().toString() + " " + String.valueOf(trackInfoList.getTracksInfo().get(position).getDistance()));
+        holder.id_TXT_calories.setText(holder.id_TXT_calories.getText().toString() + " " + String.valueOf(trackInfoList.getTracksInfo().get(position).getCalories()));
+        holder.id_TXT_time.setText(holder.id_TXT_time.getText().toString() + " " + trackInfoList.getTracksInfo().get(position).getTime());
     }
 
     @Override

@@ -2,8 +2,6 @@ package com.cohen.trackfrombehind;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -16,21 +14,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.provider.Settings;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -42,9 +36,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 
-import java.text.SimpleDateFormat;
+import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Locale;
 
 public class LocationService extends Service {
 
@@ -105,22 +98,6 @@ public class LocationService extends Service {
     }
 
 
-
-//    int counter = 0;
-//    private MCT5.CycleTicker cycleTicker = new MCT5.CycleTicker() {
-//        @Override
-//        public void secondly(int repeatsRemaining) {
-//            Log.d("pttt", Thread.currentThread().getName() + " - Hi " + System.currentTimeMillis());
-//            counter += 100;
-//
-//            String content = new SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.US).format(System.currentTimeMillis());
-//            updateNotification(counter + "m \n" + content);
-//        }
-//
-//        @Override
-//        public void done() {}
-//    };
-
     private void startRecording() {
         // Keep CPU working
         powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -147,54 +124,6 @@ public class LocationService extends Service {
 
     }
 
-//    @SuppressLint("MissingPermission")
-//    private void runGPS(){
-//
-//        boolean isLocationServiceOn = isLocationEnabled(this);
-//        if(isLocationServiceOn)
-//            Toast.makeText(LocationService.this, "location Services On", Toast.LENGTH_SHORT).show();
-//        else
-//            Toast.makeText(LocationService.this, "location Services Off", Toast.LENGTH_SHORT).show();
-//
-//        fusedLocationProviderClient = getFusedLocationProviderClient(this);
-//        if (permissionCheck(android.Manifest.permission.ACCESS_FINE_LOCATION) == 1 && permissionCheck(Manifest.permission.ACCESS_COARSE_LOCATION) == 1) {
-//            LocationRequest locationRequest = LocationRequest.create();
-//            locationRequest.setSmallestDisplacement(0.5f);
-//            locationRequest.setInterval(1000);
-//            locationRequest.setFastestInterval(500);
-//            //locationRequest.setMaxWaitTime(TimeUnit.MINUTES.toMillis(1));
-//            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//
-//            // new Google API SDK v11 uses getFusedLocationProviderClient(this)
-//            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-//        }
-//    }
-//    private int permissionCheck(String prm) {
-//        //checking permission
-//        boolean granted = ContextCompat.checkSelfPermission(this, prm) == PackageManager.PERMISSION_GRANTED;
-//        if(granted){
-//            return 1;
-//        } else {
-////            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, prm)){
-////                Toast.makeText(getApplicationContext(), "Be aware, its the last time you have this option from here", Toast.LENGTH_LONG).show();
-////                return 2;
-////            }
-//            return  3;
-//        }
-//    }
-//    public static Boolean isLocationEnabled(Context context){
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-//            // This is a new method provided in API 28
-//            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-//            return lm.isLocationEnabled();
-//        } else {
-//            // This was deprecated in API 28
-//            int mode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE,
-//                    Settings.Secure.LOCATION_MODE_OFF);
-//            return (mode != Settings.Secure.LOCATION_MODE_OFF);
-//        }
-//    }
-
 
     private LocationCallback locationCallback = new LocationCallback() {
 
@@ -211,23 +140,15 @@ public class LocationService extends Service {
                         .setLon(locationResult.getLastLocation().getLongitude())
                         .setSpeed(locationResult.getLastLocation().getSpeed() * 3.6);
 
-                /*
-                TrackList trackList = new TrackList();
-                String track_list = MySPV3.getInstance().getString(SP_KEY_LOCATION, "NuN");
-                if(track_list != "NuN" && track_list != ""){
-                    trackList = new Gson().fromJson(track_list, TrackList.class);
-                    trackList.addLoc(loc);
-                }
-                else {
-                    trackList.addLoc(loc);
-                }
-                String jsonTrackList = new Gson().toJson(trackList);
-                MySPV3.getInstance().putString(SP_KEY_LOCATION, jsonTrackList);
-
-                 */
                 String json = new Gson().toJson(loc);
                 intent.putExtra(BROADCAST_NEW_LOCATION_EXTRA_KEY, json);
                 LocalBroadcastManager.getInstance(LocationService.this).sendBroadcast(intent);
+
+                String json_dis = MySPV3.getInstance().getString(CyclingActivity.SP_KEY_SUM_DISTANCE, "0.0");
+                String json_cal = MySPV3.getInstance().getString(CyclingActivity.SP_KEY_SUM_CALORIES, "0.0");
+
+                String str = "\n" +"Speed: " + new DecimalFormat("##.##").format(loc.getSpeed()) + "\n" + "Distance: " + json_dis + "\n" + "Calories: " + json_cal;
+                updateNotification(str);
             } else {
                 Log.d("pttt", "Location information isn't available.");
             }
@@ -247,7 +168,6 @@ public class LocationService extends Service {
             }
         }
 
-        //MCT5.get().remove(cycleTicker);
 
         // Stop GPS
         if (fusedLocationProviderClient != null) {
@@ -288,7 +208,7 @@ public class LocationService extends Service {
 
     private void notifyToUserForForegroundService() {
         // On notification click
-        Intent notificationIntent = new Intent(this, PolyActivity.class);
+        Intent notificationIntent = new Intent(this, CyclingActivity.class);
         notificationIntent.setAction(MAIN_ACTION);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -302,8 +222,8 @@ public class LocationService extends Service {
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.ic_cycling)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher_round))
-                .setContentTitle("App in progress")
-                .setContentText("Content")
+                .setContentTitle("Track From Behind")
+                .setContentText("Track:")
         ;
 
         Notification notification = notificationBuilder.build();
