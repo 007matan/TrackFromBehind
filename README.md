@@ -13,10 +13,11 @@ View Your Tracks: The app records your cycling routes and displays them on a map
 Background Service: The app utilizes a background service that continues tracking your cycling activity even if you switch to another app or if the main app is closed or destroyed. This ensures uninterrupted tracking and accurate data collection.
 
 # Usage
-To use the Cycling Tracker App:
+To use the Track From Behind App:
 
 Install the app on your Android device.
 Launch the app and grant the necessary permissions, such as location access, for accurate tracking.
+Ender your personal information.
 Start your cycling activity by tapping the "Start" button.
 The app will begin tracking your pace, distance, and calories burned in real-time.
 You can view your progress on the main screen, including your current pace, distance covered, and estimated calories burned.
@@ -33,4 +34,4 @@ GPS Location Tracking: The app uses the GPS functionality of the Android device 
 Background Service: A service component is implemented to run in the background, ensuring continuous tracking even when the app is not in the foreground.
 
 # Conclusion
-The Cycling Tracker App for Android provides an intuitive and convenient way to monitor your cycling activities. With its ability to track your pace, measure workout distance, count burned calories, and view your tracks on a map, it offers a comprehensive experience for cyclists of all levels. The implementation of a background service ensures that your activities are accurately recorded, even if the app is closed or destroyed. Enjoy your cycling sessions and make the most out of your workouts with the Cycling Tracker App!
+The Track From Behind App for Android provides an intuitive and convenient way to monitor your cycling activities. With its ability to track your pace, measure workout distance, count burned calories, and view your tracks on a map, it offers a comprehensive experience for cyclists of all levels. The implementation of a background service ensures that your activities are accurately recorded, even if the app is closed or destroyed. Enjoy your cycling sessions and make the most out of your workouts with the Cycling Tracker App!
