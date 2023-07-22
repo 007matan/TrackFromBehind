@@ -343,7 +343,7 @@ public class CyclingActivity extends AppCompatActivity
         trackList = new Gson().fromJson(track_list, TrackList.class);
 
         TrackInfo trackInfo = new TrackInfo()
-                .setPolylineOptions(polylineOptions)
+                //.setPolylineOptions(polylineOptions)
                 .setCalories(Double.valueOf(id_map_cal.getText().toString()))
                 .setDistance(Double.valueOf(id_map_dis.getText().toString()))
                 .setTime(chronometer.getText().toString())

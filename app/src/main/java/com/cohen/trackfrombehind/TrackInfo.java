@@ -3,7 +3,7 @@ package com.cohen.trackfrombehind;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 public class TrackInfo {
-    private PolylineOptions polylineOptions;
+    //private PolylineOptions polylineOptions;
     private double distance;
     private double calories;
     private String time;
@@ -13,14 +13,14 @@ public class TrackInfo {
     public TrackInfo() {
     }
 
-    public PolylineOptions getPolylineOptions() {
-        return polylineOptions;
-    }
+    //public PolylineOptions getPolylineOptions() {
+    //    return polylineOptions;
+    //}
 
-    public TrackInfo setPolylineOptions(PolylineOptions polylineOptions) {
-        this.polylineOptions = polylineOptions;
-        return this;
-    }
+    //public TrackInfo setPolylineOptions(PolylineOptions polylineOptions) {
+    //    this.polylineOptions = polylineOptions;
+    //    return this;
+    //}
 
     public double getDistance() {
         return distance;

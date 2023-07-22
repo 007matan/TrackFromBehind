@@ -56,7 +56,7 @@ public class TrackRecordActivity extends AppCompatActivity implements MyTrackInf
         TrackList trackList = new TrackList();
         trackList = trackInfoList.getTracksInfo().get(position).getTrackList();
         int i;
-        polylineOptions = null;
+        polylineOptions = new PolylineOptions();
         for(i = 0; i < trackList.getTracks().size(); i++){
             polylineOptions.add(new LatLng(trackList.getTracks().get(i).getLat(), trackList.getTracks().get(i).getLon()));
         }
