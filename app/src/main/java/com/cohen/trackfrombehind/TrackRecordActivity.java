@@ -26,7 +26,7 @@ public class TrackRecordActivity extends AppCompatActivity implements MyTrackInf
 
     GoogleMap googleMap = null;
 
-    private PolylineOptions polylineOptions = new PolylineOptions();
+    private PolylineOptions polylineOptions;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
