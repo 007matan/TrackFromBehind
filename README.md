@@ -30,6 +30,8 @@ The Cycling Tracker App utilizes the following technologies:
 Android Development: The app is developed using Java or Kotlin programming languages, making use of the Android SDK.
 
 GPS Location Tracking: The app uses the GPS functionality of the Android device to track the user's location and calculate the pace, distance, and route.
+Google Location Service: The app uses Google API, and services for demonstrate
+Fuest location: for more accuracy 
 
 Background Service: A service component is implemented to run in the background, ensuring continuous tracking even when the app is not in the foreground.
 
