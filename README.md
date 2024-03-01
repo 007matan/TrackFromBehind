@@ -4,7 +4,7 @@
 
 The Track From Behind App is an Android application designed to enhance your cycling experience. It goes beyond a standard tracking app, offering features that allow you to monitor your pace, measure workout distance, count burned calories, and visualize your cycling routes on a map. The standout feature is its ability to persistently track your activity, even if the app is closed, ensuring uninterrupted data collection.
 
-![Track From Behind App](https://github.com/007matan/your-TrackFromBehind/trackfrombehindpresentaion.png)
+![Track From Behind App](https://github.com/007matan/TrackFromBehind/TrackFromBehindPresentaion.png)
 
 ## Features 🌟
 
